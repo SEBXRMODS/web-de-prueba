@@ -2,7 +2,9 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
 <title>Simulador App</title>
 
 <style>
@@ -145,7 +147,8 @@ button:hover{
 
     <div class="card">
       <div id="expireInfo"></div>
-      <div id="deviceInfo" class="small"></div>
+      <div id="deviceInfo"
+      class="small"></div>
     </div>
 
   </div>
@@ -154,10 +157,12 @@ button:hover{
 
 <script type="module">
 
+/* FIREBASE */
 import { initializeApp } from
 "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
 import {
+
   getDatabase,
   ref,
   get,
@@ -165,10 +170,11 @@ import {
   update,
   set,
   onDisconnect
+
 } from
 "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-/* FIREBASE CONFIG */
+/* CONFIG */
 const firebaseConfig = {
 
   apiKey:
@@ -200,13 +206,16 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
 /* DEVICE ID */
-let deviceId = localStorage.getItem("deviceId");
+let deviceId =
+localStorage.getItem("deviceId");
 
 if(!deviceId){
 
   deviceId =
     "device-" +
-    Math.random().toString(36).substring(2,10);
+    Math.random()
+    .toString(36)
+    .substring(2,10);
 
   localStorage.setItem(
     "deviceId",
@@ -233,16 +242,56 @@ window.loginKey = async function(){
       "panel"
     );
 
-  status.innerHTML = "Verificando key...";
+  status.innerHTML =
+    "Verificando key...";
 
   try{
 
-    /* LEER KEY */
-    const snapshot = await get(
-      child(ref(db), "keys/" + key)
-    );
+    /* BUSCAR USERS */
+    const usersSnapshot =
+      await get(
+        child(ref(db), "users")
+      );
 
-    if(!snapshot.exists()){
+    let found = false;
+
+    let data = null;
+
+    let ownerUID = "";
+
+    if(usersSnapshot.exists()){
+
+      const usersData =
+        usersSnapshot.val();
+
+      for(const uid in usersData){
+
+        if(
+
+          usersData[uid].keys &&
+
+          usersData[uid].keys[key]
+
+        ){
+
+          data =
+            usersData[uid]
+            .keys[key];
+
+          ownerUID = uid;
+
+          found = true;
+
+          break;
+
+        }
+
+      }
+
+    }
+
+    /* INVALIDA */
+    if(!found){
 
       status.innerHTML =
         "❌ Key inválida";
@@ -251,15 +300,17 @@ window.loginKey = async function(){
 
     }
 
-    const data = snapshot.val();
-
     /* BAN CHECK */
-    const banned = await get(
-      child(
-        ref(db),
-        "bannedDevices/" + deviceId
-      )
-    );
+    const banned =
+      await get(
+
+        child(
+          ref(db),
+          "bannedDevices/" +
+          deviceId
+        )
+
+      );
 
     if(banned.exists()){
 
@@ -270,7 +321,7 @@ window.loginKey = async function(){
 
     }
 
-    /* KEY DESACTIVADA */
+    /* DESACTIVADA */
     if(!data.active){
 
       status.innerHTML =
@@ -280,8 +331,9 @@ window.loginKey = async function(){
 
     }
 
-    /* KEY EXPIRADA */
-    if(Date.now() > data.expiresAt){
+    /* EXPIRADA */
+    if(Date.now() >
+      data.expiresAt){
 
       status.innerHTML =
         "❌ Key expirada";
@@ -291,7 +343,13 @@ window.loginKey = async function(){
     }
 
     /* ANTI SHARE */
-    if(data.used && data.usedBy !== deviceId){
+    if(
+
+      data.used &&
+
+      data.usedBy !== deviceId
+
+    ){
 
       status.innerHTML =
         "🚫 Key usada en otro dispositivo";
@@ -303,11 +361,26 @@ window.loginKey = async function(){
     /* ACTIVAR KEY */
     await update(
 
-      ref(db, "keys/" + key),
+      ref(
+
+        db,
+
+        "users/" +
+
+        ownerUID +
+
+        "/keys/" +
+
+        key
+
+      ),
 
       {
+
         used:true,
+
         usedBy:deviceId
+
       }
 
     );
@@ -315,30 +388,52 @@ window.loginKey = async function(){
     /* ONLINE USERS */
     await set(
 
-      ref(db, "onlineUsers/" + deviceId),
+      ref(
+        db,
+        "onlineUsers/" +
+        deviceId
+      ),
 
       {
+
         key:key,
+
         loginAt:Date.now()
+
       }
 
     );
 
     onDisconnect(
-      ref(db, "onlineUsers/" + deviceId)
+
+      ref(
+        db,
+        "onlineUsers/" +
+        deviceId
+      )
+
     ).remove();
 
     /* LOG */
-    const logId = Date.now();
+    const logId =
+      Date.now();
 
     await set(
 
-      ref(db, "logs/" + logId),
+      ref(
+        db,
+        "logs/" +
+        logId
+      ),
 
       {
+
         device:deviceId,
+
         key:key,
+
         time:Date.now()
+
       }
 
     );
@@ -347,25 +442,35 @@ window.loginKey = async function(){
     status.innerHTML =
       "✅ Acceso concedido";
 
-    panel.style.display = "block";
+    panel.style.display =
+      "block";
 
-    const exp = new Date(data.expiresAt);
+    const exp =
+      new Date(
+        data.expiresAt
+      );
 
     document.getElementById(
       "expireInfo"
     ).innerHTML =
+
       "⏳ Expira: " +
+
       exp.toLocaleString();
 
     document.getElementById(
       "deviceInfo"
     ).innerHTML =
-      "📱 Device ID: " + deviceId;
+
+      "📱 Device ID: " +
+
+      deviceId;
 
   }catch(err){
 
     status.innerHTML =
-      "❌ Error: " + err.message;
+      "❌ Error: " +
+      err.message;
 
   }
 
