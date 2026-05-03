@@ -15,11 +15,13 @@ body{
   display:flex;
   justify-content:center;
   align-items:center;
-  height:100vh;
+  min-height:100vh;
+  padding:20px;
+  box-sizing:border-box;
 }
 
 .box{
-  width:350px;
+  width:380px;
   background:#111a2e;
   padding:25px;
   border-radius:12px;
@@ -66,6 +68,17 @@ button:hover{
   opacity:.7;
 }
 
+.feature{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.switch{
+  color:#22c55e;
+  font-weight:bold;
+}
+
 </style>
 </head>
 
@@ -92,15 +105,42 @@ button:hover{
     </div>
 
     <div class="card">
-      🔥 Función Premium 1
+      🎮 Menú Principal
     </div>
 
-    <div class="card">
-      🚀 Función Premium 2
+    <div class="card feature">
+      <span>🟢 Icono Flotante</span>
+      <span class="switch">ON</span>
     </div>
 
-    <div class="card">
-      👑 Acceso VIP
+    <div class="card feature">
+      <span>⚡ Aim Assist</span>
+      <span class="switch">ON</span>
+    </div>
+
+    <div class="card feature">
+      <span>🎯 Aimbot</span>
+      <span class="switch">ON</span>
+    </div>
+
+    <div class="card feature">
+      <span>👀 ESP Players</span>
+      <span class="switch">ON</span>
+    </div>
+
+    <div class="card feature">
+      <span>🔫 No Recoil</span>
+      <span class="switch">ON</span>
+    </div>
+
+    <div class="card feature">
+      <span>🚀 Speed Boost</span>
+      <span class="switch">ON</span>
+    </div>
+
+    <div class="card feature">
+      <span>🛡️ Anti Ban</span>
+      <span class="switch">ON</span>
     </div>
 
     <div class="card">
@@ -197,6 +237,7 @@ window.loginKey = async function(){
 
   try{
 
+    /* LEER KEY */
     const snapshot = await get(
       child(ref(db), "keys/" + key)
     );
@@ -211,6 +252,23 @@ window.loginKey = async function(){
     }
 
     const data = snapshot.val();
+
+    /* BAN CHECK */
+    const banned = await get(
+      child(
+        ref(db),
+        "bannedDevices/" + deviceId
+      )
+    );
+
+    if(banned.exists()){
+
+      status.innerHTML =
+        "🚫 Dispositivo baneado";
+
+      return;
+
+    }
 
     /* KEY DESACTIVADA */
     if(!data.active){
