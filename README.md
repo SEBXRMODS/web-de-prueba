@@ -2,7 +2,9 @@
 <html lang="es">
 
 <head>
+
 <meta charset="UTF-8">
+
 <meta name="viewport"
 content="width=device-width, initial-scale=1.0">
 
@@ -11,139 +13,156 @@ content="width=device-width, initial-scale=1.0">
 <style>
 
 body{
-  margin:0;
-  background:#0b1220;
-  color:white;
-  font-family:Arial;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  min-height:100vh;
+margin:0;
+background:#0b1220;
+font-family:Arial;
+color:white;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
 }
 
 .box{
-  width:380px;
-  background:#111a2e;
-  padding:25px;
-  border-radius:12px;
+background:#111a2e;
+padding:30px;
+border-radius:12px;
+width:350px;
+text-align:center;
 }
 
 input{
-  width:100%;
-  padding:12px;
-  margin-top:10px;
-  border:none;
-  border-radius:6px;
-  box-sizing:border-box;
+width:100%;
+padding:12px;
+margin-top:10px;
+border:none;
+border-radius:6px;
+box-sizing:border-box;
 }
 
 button{
-  width:100%;
-  padding:12px;
-  margin-top:10px;
-  border:none;
-  border-radius:6px;
-  background:#3b82f6;
-  color:white;
-  cursor:pointer;
+width:100%;
+padding:12px;
+margin-top:10px;
+border:none;
+border-radius:6px;
+background:#3b82f6;
+color:white;
+cursor:pointer;
+}
+
+button:hover{
+background:#2563eb;
+}
+
+#error{
+color:red;
+margin-top:10px;
+}
+
+#app{
+display:none;
+}
+
+.menu{
+margin-top:20px;
+display:grid;
+gap:10px;
 }
 
 .card{
-  background:#0f172a;
-  padding:15px;
-  border-radius:8px;
-  margin-top:10px;
+background:#0f172a;
+padding:15px;
+border-radius:10px;
 }
 
-#panel{
-  display:none;
-}
-
-.small{
-  font-size:12px;
-  opacity:.7;
-}
-
-.online{
-  color:#00ff88;
+.float{
+position:fixed;
+bottom:20px;
+right:20px;
+width:60px;
+height:60px;
+border-radius:50%;
+background:#3b82f6;
+display:flex;
+justify-content:center;
+align-items:center;
+font-size:28px;
+cursor:pointer;
+box-shadow:0 0 20px rgba(0,0,0,.4);
 }
 
 </style>
+
 </head>
 
 <body>
 
 <div class="box">
 
-<h2>Simulador App</h2>
+<div id="loginBox">
+
+<h2>Activar Key</h2>
 
 <input
 id="keyInput"
 placeholder="Ingresa tu key">
 
-<button onclick="loginKey()">
-Entrar
+<button id="activateBtn">
+Activar
 </button>
+
+<p id="error"></p>
+
+</div>
+
+<div id="app">
+
+<h2>
+✅ App Activada
+</h2>
 
 <p id="status"></p>
 
-<div id="panel">
+<div class="menu">
 
 <div class="card">
-✅ Usuario autenticado
-</div>
-
-<div class="card">
-🎮 Menú Principal
+📦 ESP Menu
 </div>
 
 <div class="card">
-🟢 Icono Flotante
+🎯 Aim Assist
 </div>
 
 <div class="card">
-⚡ Aim Assist
+👁️ Wallhack
 </div>
 
 <div class="card">
-🎯 Aimbot
+⚡ Speed Boost
 </div>
 
-<div class="card">
-👀 ESP Players
 </div>
-
-<div class="card">
-🔫 No Recoil
-</div>
-
-<div class="card">
-🚀 Speed Boost
-</div>
-
-<div class="card">
-🛡️ Anti Ban
-</div>
-
-<div class="card">
-
-<div id="expireInfo"></div>
-
-<div id="deviceInfo"
-class="small"></div>
-
-<div id="onlineInfo"
-class="small online"></div>
 
 </div>
 
 </div>
+
+<div
+id="floatBtn"
+class="float"
+style="display:none;">
+
+⚙️
 
 </div>
 
 <script type="module">
 
-import { initializeApp } from
+import { initializeApp }
+
+from
+
 "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
 import {
@@ -151,35 +170,35 @@ import {
 getDatabase,
 ref,
 get,
-child,
-update,
 set,
-onDisconnect
+child,
+update
 
-} from
+}
+
+from
+
 "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-/* CONFIG */
+/* FIREBASE */
 
 const firebaseConfig = {
 
-apiKey:"TU_API_KEY",
+apiKey: "AIzaSyBs3WgavHMxywN7GMr6Lp6CSmU_NRZOSYU",
 
-authDomain:"TU_AUTH_DOMAIN",
+authDomain: "panelsebxrmods.firebaseapp.com",
 
-databaseURL:"TU_DATABASE_URL",
+databaseURL: "https://panelsebxrmods-default-rtdb.firebaseio.com",
 
-projectId:"TU_PROJECT_ID",
+projectId: "panelsebxrmods",
 
-storageBucket:"TU_STORAGE_BUCKET",
+storageBucket: "panelsebxrmods.firebasestorage.app",
 
-messagingSenderId:"TU_SENDER_ID",
+messagingSenderId: "717339227525",
 
-appId:"TU_APP_ID"
+appId: "1:717339227525:web:98101a11654e25a45800ec"
 
 };
-
-/* INIT */
 
 const app =
 initializeApp(firebaseConfig);
@@ -187,7 +206,7 @@ initializeApp(firebaseConfig);
 const db =
 getDatabase(app);
 
-/* DEVICE */
+/* DEVICE ID */
 
 let deviceId =
 localStorage.getItem(
@@ -197,7 +216,7 @@ localStorage.getItem(
 if(!deviceId){
 
 deviceId =
-"device-" +
+"DEV-" +
 Math.random()
 .toString(36)
 .substring(2,10);
@@ -209,124 +228,103 @@ deviceId
 
 }
 
-/* LOGIN */
+/* ACTIVATE KEY */
 
-window.loginKey =
-async function(){
+async function activateKey(){
 
 const key =
 document.getElementById(
 "keyInput"
-).value.trim();
+).value
+.trim();
 
-const status =
 document.getElementById(
-"status"
-);
+"error"
+).innerHTML = "";
 
-const panel =
-document.getElementById(
-"panel"
-);
-
-status.innerHTML =
-"Verificando key...";
-
-try{
-
-const usersSnapshot =
-await get(
-child(ref(db), "users")
-);
-
-let found = false;
-
-let data = null;
-
-let ownerUID = "";
-
-if(usersSnapshot.exists()){
-
-const usersData =
-usersSnapshot.val();
-
-for(const uid in usersData){
-
-if(
-
-usersData[uid].keys &&
-
-usersData[uid].keys[key]
-
-){
-
-data =
-usersData[uid]
-.keys[key];
-
-ownerUID = uid;
-
-found = true;
-
-break;
-
-}
-
-}
-
-}
-
-if(!found){
-
-status.innerHTML =
-"❌ Key inválida";
+if(!key){
 
 return;
 
 }
 
-/* BAN */
+try{
 
-const banned =
+/* CHECK BANNED */
+
+const bannedSnap =
 await get(
-
 child(
 ref(db),
 "bannedDevices/" +
 deviceId
 )
-
 );
 
-if(banned.exists()){
+if(
+bannedSnap.exists()
+){
 
-status.innerHTML =
-"🚫 Dispositivo baneado";
+document.getElementById(
+"error"
+).innerHTML =
 
-return;
-
-}
-
-/* ACTIVE */
-
-if(!data.active){
-
-status.innerHTML =
-"⛔ Key desactivada";
+"Dispositivo baneado";
 
 return;
 
 }
 
-/* EXPIRE */
+/* FIND KEY */
+
+const usersSnap =
+await get(
+child(ref(db),
+"users")
+);
+
+if(!usersSnap.exists()){
+
+document.getElementById(
+"error"
+).innerHTML =
+
+"Key inválida";
+
+return;
+
+}
+
+let found = false;
+
+usersSnap.forEach(user=>{
+
+const keys =
+user.child("keys");
+
+keys.forEach(async k=>{
+
+const data =
+k.val();
+
+if(
+data.key === key
+){
+
+found = true;
+
+/* EXPIRED */
 
 if(
 Date.now() >
 data.expiresAt
 ){
 
-status.innerHTML =
-"❌ Key expirada";
+document.getElementById(
+"error"
+).innerHTML =
+
+"Key expirada";
 
 return;
 
@@ -335,42 +333,31 @@ return;
 /* ANTI SHARE */
 
 if(
-
 data.used &&
-
 data.usedBy !== deviceId
-
 ){
 
 await update(
 
 ref(
-
 db,
-
 "users/" +
-
-ownerUID +
-
+user.key +
 "/keys/" +
-
 key
-
 ),
 
 {
-
-shared:true,
-
-sharedAttemptBy:
-deviceId
-
+shared:true
 }
 
 );
 
-status.innerHTML =
-"🚫 Key compartida detectada";
+document.getElementById(
+"error"
+).innerHTML =
+
+"Key compartida detectada";
 
 return;
 
@@ -381,17 +368,11 @@ return;
 await update(
 
 ref(
-
 db,
-
 "users/" +
-
-ownerUID +
-
+user.key +
 "/keys/" +
-
 key
-
 ),
 
 {
@@ -409,47 +390,29 @@ usedBy:deviceId
 await set(
 
 ref(
-
 db,
-
 "onlineUsers/" +
 deviceId
-
 ),
 
 {
 
 key:key,
 
-loginAt:Date.now()
+time:Date.now()
 
 }
 
 );
 
-onDisconnect(
-
-ref(
-
-db,
-
-"onlineUsers/" +
-deviceId
-
-)
-
-).remove();
-
 /* LOG */
-
-const logId =
-Date.now();
 
 await set(
 
 ref(
 db,
-"logs/" + logId
+"logs/" +
+Date.now()
 ),
 
 {
@@ -464,49 +427,103 @@ time:Date.now()
 
 );
 
-/* UI */
+/* SHOW APP */
 
-status.innerHTML =
-"✅ Acceso concedido";
+document.getElementById(
+"loginBox"
+).style.display =
+"none";
 
-panel.style.display =
+document.getElementById(
+"app"
+).style.display =
 "block";
 
-const exp =
-new Date(
-data.expiresAt
+document.getElementById(
+"floatBtn"
+).style.display =
+"flex";
+
+const hours =
+Math.floor(
+(
+data.expiresAt -
+Date.now()
+)
+/3600000
 );
 
 document.getElementById(
-"expireInfo"
+"status"
 ).innerHTML =
 
-"⏳ Expira: " +
-exp.toLocaleString();
+"⏳ " +
+hours +
+" horas restantes";
+
+}
+
+});
+
+});
+
+setTimeout(()=>{
+
+if(!found){
 
 document.getElementById(
-"deviceInfo"
+"error"
 ).innerHTML =
 
-"📱 Device: " +
-deviceId;
+"Key inválida";
 
-document.getElementById(
-"onlineInfo"
-).innerHTML =
+}
 
-"🟢 Online conectado";
+},1000);
 
 }catch(err){
 
 console.log(err);
 
-status.innerHTML =
-"❌ " + err.message;
+document.getElementById(
+"error"
+).innerHTML =
+err.message;
 
 }
 
+}
+
+/* BUTTON */
+
+window.onload = () => {
+
+document
+.getElementById(
+"activateBtn"
+)
+.addEventListener(
+"click",
+activateKey
+);
+
 };
+
+/* FLOAT */
+
+document
+.getElementById(
+"floatBtn"
+)
+.addEventListener(
+"click",
+()=>{
+
+alert(
+"Menú flotante abierto"
+);
+
+});
 
 </script>
 
