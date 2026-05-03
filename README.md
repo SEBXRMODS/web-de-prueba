@@ -172,15 +172,14 @@ ref,
 get,
 set,
 child,
-update
+update,
+remove
 
 }
 
 from
 
 "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-
-/* FIREBASE */
 
 const firebaseConfig = {
 
@@ -269,7 +268,7 @@ document.getElementById(
 "error"
 ).innerHTML =
 
-"Dispositivo baneado";
+"🚫 Dispositivo baneado";
 
 return;
 
@@ -289,7 +288,7 @@ document.getElementById(
 "error"
 ).innerHTML =
 
-"Key inválida";
+"❌ Key inválida";
 
 return;
 
@@ -313,7 +312,21 @@ data.key === key
 
 found = true;
 
-/* EXPIRED */
+/* DESACTIVADA */
+
+if(!data.active){
+
+document.getElementById(
+"error"
+).innerHTML =
+
+"❌ Key desactivada";
+
+return;
+
+}
+
+/* EXPIRADA */
 
 if(
 Date.now() >
@@ -324,7 +337,21 @@ document.getElementById(
 "error"
 ).innerHTML =
 
-"Key expirada";
+"⌛ Key expirada";
+
+/* AUTO DELETE */
+
+await remove(
+
+ref(
+db,
+"users/" +
+user.key +
+"/keys/" +
+key
+)
+
+);
 
 return;
 
@@ -357,7 +384,7 @@ document.getElementById(
 "error"
 ).innerHTML =
 
-"Key compartida detectada";
+"🚫 Key compartida detectada";
 
 return;
 
@@ -475,7 +502,7 @@ document.getElementById(
 "error"
 ).innerHTML =
 
-"Key inválida";
+"❌ Key inválida";
 
 }
 
@@ -509,7 +536,7 @@ activateKey
 
 };
 
-/* FLOAT */
+/* FLOAT BUTTON */
 
 document
 .getElementById(
@@ -520,7 +547,7 @@ document
 ()=>{
 
 alert(
-"Menú flotante abierto"
+"⚙️ Menú flotante abierto"
 );
 
 });
