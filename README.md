@@ -21,6 +21,7 @@ display:flex;
 justify-content:center;
 align-items:center;
 height:100vh;
+overflow:hidden;
 }
 
 .box{
@@ -29,6 +30,7 @@ padding:30px;
 border-radius:12px;
 width:350px;
 text-align:center;
+box-shadow:0 0 30px rgba(0,0,0,.4);
 }
 
 input{
@@ -38,6 +40,8 @@ margin-top:10px;
 border:none;
 border-radius:6px;
 box-sizing:border-box;
+background:#0f172a;
+color:white;
 }
 
 button{
@@ -49,6 +53,7 @@ border-radius:6px;
 background:#3b82f6;
 color:white;
 cursor:pointer;
+font-weight:bold;
 }
 
 button:hover{
@@ -56,7 +61,7 @@ background:#2563eb;
 }
 
 #error{
-color:red;
+color:#ff4d4d;
 margin-top:10px;
 }
 
@@ -74,6 +79,12 @@ gap:10px;
 background:#0f172a;
 padding:15px;
 border-radius:10px;
+transition:.2s;
+cursor:pointer;
+}
+
+.card:hover{
+transform:scale(1.03);
 }
 
 .float{
@@ -90,6 +101,35 @@ align-items:center;
 font-size:28px;
 cursor:pointer;
 box-shadow:0 0 20px rgba(0,0,0,.4);
+z-index:999;
+}
+
+.panel{
+position:fixed;
+right:20px;
+bottom:90px;
+background:#111a2e;
+padding:15px;
+border-radius:12px;
+width:220px;
+display:none;
+box-shadow:0 0 20px rgba(0,0,0,.5);
+}
+
+.toggle{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-top:10px;
+background:#0f172a;
+padding:10px;
+border-radius:8px;
+}
+
+.status{
+margin-top:15px;
+font-size:14px;
+opacity:.8;
 }
 
 </style>
@@ -102,7 +142,7 @@ box-shadow:0 0 20px rgba(0,0,0,.4);
 
 <div id="loginBox">
 
-<h2>Activar Key</h2>
+<h2>🔑 Activar Key</h2>
 
 <input
 id="keyInput"
@@ -144,6 +184,10 @@ Activar
 
 </div>
 
+<div class="status">
+🟢 Sistema funcionando correctamente
+</div>
+
 </div>
 
 </div>
@@ -154,6 +198,36 @@ class="float"
 style="display:none;">
 
 ⚙️
+
+</div>
+
+<div
+id="floatPanel"
+class="panel">
+
+<h3>
+⚙️ Menu Mod
+</h3>
+
+<div class="toggle">
+<span>ESP</span>
+<input type="checkbox">
+</div>
+
+<div class="toggle">
+<span>AIM</span>
+<input type="checkbox">
+</div>
+
+<div class="toggle">
+<span>WALL</span>
+<input type="checkbox">
+</div>
+
+<div class="toggle">
+<span>SPEED</span>
+<input type="checkbox">
+</div>
 
 </div>
 
@@ -180,6 +254,8 @@ remove
 from
 
 "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+/* FIREBASE */
 
 const firebaseConfig = {
 
@@ -267,14 +343,13 @@ bannedSnap.exists()
 document.getElementById(
 "error"
 ).innerHTML =
-
 "🚫 Dispositivo baneado";
 
 return;
 
 }
 
-/* FIND KEY */
+/* GET USERS */
 
 const usersSnap =
 await get(
@@ -287,39 +362,42 @@ if(!usersSnap.exists()){
 document.getElementById(
 "error"
 ).innerHTML =
-
 "❌ Key inválida";
 
 return;
 
 }
 
+const usersData =
+usersSnap.val();
+
 let found = false;
 
-usersSnap.forEach(user=>{
+/* SEARCH KEY */
+
+for (const uid in usersData) {
 
 const keys =
-user.child("keys");
+usersData[uid].keys;
 
-keys.forEach(async k=>{
+if (!keys) continue;
+
+for (const keyId in keys) {
 
 const data =
-k.val();
+keys[keyId];
 
-if(
-data.key === key
-){
+if (data.key === key) {
 
 found = true;
 
 /* DESACTIVADA */
 
-if(!data.active){
+if (!data.active) {
 
 document.getElementById(
 "error"
 ).innerHTML =
-
 "❌ Key desactivada";
 
 return;
@@ -328,25 +406,22 @@ return;
 
 /* EXPIRADA */
 
-if(
+if (
 Date.now() >
 data.expiresAt
-){
+) {
 
 document.getElementById(
 "error"
 ).innerHTML =
-
 "⌛ Key expirada";
-
-/* AUTO DELETE */
 
 await remove(
 
 ref(
 db,
 "users/" +
-user.key +
+uid +
 "/keys/" +
 key
 )
@@ -359,17 +434,17 @@ return;
 
 /* ANTI SHARE */
 
-if(
+if (
 data.used &&
 data.usedBy !== deviceId
-){
+) {
 
 await update(
 
 ref(
 db,
 "users/" +
-user.key +
+uid +
 "/keys/" +
 key
 ),
@@ -383,8 +458,7 @@ shared:true
 document.getElementById(
 "error"
 ).innerHTML =
-
-"🚫 Key compartida detectada";
+"🚫 Key compartida";
 
 return;
 
@@ -397,17 +471,14 @@ await update(
 ref(
 db,
 "users/" +
-user.key +
+uid +
 "/keys/" +
 key
 ),
 
 {
-
 used:true,
-
 usedBy:deviceId
-
 }
 
 );
@@ -423,11 +494,8 @@ deviceId
 ),
 
 {
-
 key:key,
-
 time:Date.now()
-
 }
 
 );
@@ -443,13 +511,9 @@ Date.now()
 ),
 
 {
-
 device:deviceId,
-
 key:key,
-
 time:Date.now()
-
 }
 
 );
@@ -483,30 +547,35 @@ Date.now()
 document.getElementById(
 "status"
 ).innerHTML =
-
 "⏳ " +
 hours +
 " horas restantes";
 
+/* SAVE */
+
+localStorage.setItem(
+"savedKey",
+key
+);
+
+return;
+
 }
 
-});
+}
 
-});
+}
 
-setTimeout(()=>{
+/* NOT FOUND */
 
 if(!found){
 
 document.getElementById(
 "error"
 ).innerHTML =
-
 "❌ Key inválida";
 
 }
-
-},1000);
 
 }catch(err){
 
@@ -536,19 +605,36 @@ activateKey
 
 };
 
-/* FLOAT BUTTON */
+/* FLOAT MENU */
 
-document
-.getElementById(
+const floatBtn =
+document.getElementById(
 "floatBtn"
-)
-.addEventListener(
+);
+
+const floatPanel =
+document.getElementById(
+"floatPanel"
+);
+
+floatBtn.addEventListener(
 "click",
 ()=>{
 
-alert(
-"⚙️ Menú flotante abierto"
-);
+if(
+floatPanel.style.display
+=== "block"
+){
+
+floatPanel.style.display =
+"none";
+
+}else{
+
+floatPanel.style.display =
+"block";
+
+}
 
 });
 
